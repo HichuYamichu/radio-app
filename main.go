@@ -1,13 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
+var addr = flag.String("addr", "localhost:8080", "http service address")
 var buffer = make([]byte, 40000)
 var chunk []byte
 
@@ -19,7 +22,7 @@ func main() {
 	}
 	defer f.Close()
 
-	go clock(f)
+	go loadBuffer(f)
 
 	http.HandleFunc("/audio", func(w http.ResponseWriter, r *http.Request) {
 		flusher, ok := w.(http.Flusher)
@@ -39,10 +42,12 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":8080", nil)
+	flag.Parse()
+	log.SetFlags(0)
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
-func clock(f *os.File) {
+func loadBuffer(f *os.File) {
 	throttle := time.Tick(time.Second)
 	for {
 		<-throttle
