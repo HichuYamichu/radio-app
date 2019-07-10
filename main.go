@@ -13,6 +13,7 @@ import (
 var addr = flag.String("addr", "localhost:8080", "http service address")
 var buffer = make([]byte, 40000)
 var chunk []byte
+var done = make(chan struct{})
 
 func main() {
 
@@ -36,9 +37,15 @@ func main() {
 		w.Header().Set("Transfer-Encoding", "chunked")
 		w.Header().Set("Content-Type", "audio/wav")
 		for {
-			w.Write(chunk)
-			flusher.Flush()
-			time.Sleep(time.Second)
+			select {
+			case <-r.Context().Done():
+				break
+			default:
+				fmt.Println("client")
+				w.Write(chunk)
+				flusher.Flush()
+				time.Sleep(time.Second)
+			}
 		}
 	})
 
