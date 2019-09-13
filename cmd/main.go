@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/HichuYamichu/radio-app/app"
+	"github.com/hichuyamichu/radio-app/app"
 )
 
 var addr = flag.String("addr", "localhost:3000", "http service address")
